@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess Cheat</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="popup">
+    <header class="brand">
+      <img src="icons/icon48.png" alt="" width="32" height="32">
+      <div>
+        <h1>Chess Cheat</h1>
+        <p>Chessboard move hints</p>
+      </div>
+    </header>
+
+    <section class="state-card" aria-live="polite">
+      <span id="state-dot" class="state-dot" aria-hidden="true"></span>
+      <div class="state-copy">
+        <strong id="state-title">Checking status…</strong>
+        <p id="state-detail">Connecting to the current tab.</p>
+      </div>
+    </section>
+
+    <button id="toggle" class="toggle" type="button" disabled>Loading…</button>
+    <button id="allow-site" class="allow-site" type="button" hidden>Approve this site</button>
+
+    <section class="preferences" aria-labelledby="visual-heading">
+      <h2 id="visual-heading">Board marker</h2>
+      <label class="field-row" for="display-mode">
+        <span>Style</span>
+        <select id="display-mode">
+          <option value="arrow">Arrow</option>
+          <option value="squares">Squares</option>
+          <option value="both">Both</option>
+        </select>
+      </label>
+      <label class="field-row" for="marker-color">
+        <span>Color</span>
+        <input id="marker-color" type="color" value="#a3e635" aria-label="Move marker color">
+      </label>
+      <label class="field-row" for="line-weight">
+        <span>Line weight</span>
+        <select id="line-weight">
+          <option value="thin">Thin</option>
+          <option value="normal" selected>Normal</option>
+          <option value="bold">Bold</option>
+        </select>
+      </label>
+      <label class="field-row check-row" for="show-think-timer">
+        <span>Show position timer</span>
+        <input id="show-think-timer" type="checkbox" checked>
+      </label>
+      <p class="setting-note">Shows how long to think before playing the move. Counts down to zero — analysis runs in parallel and is not delayed.</p>
+    </section>
+
+    <p class="note">Works wherever a recognizable board and compatible page-provided engine are available. Chess.com and Lichess routes are eligible automatically; other sites may need origin approval.</p>
+  </main>
+  <script src="site-policy.js"></script>
+  <script src="visual-settings.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
