@@ -1,4 +1,4 @@
-<div align="center">
+ <div align="center">
   <img src="icons/icon128.png" alt="Chess Cheat extension icon" width="96" height="96" />
   <h1>Chess Cheat</h1>
   <p><strong>A browser-extension project for chessboard detection, position analysis, and on-board move visualization.</strong></p>
@@ -20,6 +20,12 @@ Chess Cheat is an open-source browser-extension project for exploring how a brow
 The project is also a practical codebase for studying Chromium extensions, DOM-based board adapters, page/extension messaging, state tracking, and automated tests.
 
 > **Fair-play notice:** Use engine assistance only in analysis, study, or other settings where it is explicitly permitted. Do not use it to gain an advantage in rated games, tournaments, or any game whose rules prohibit outside assistance. Follow the rules of the chess platform and the event you are participating in.
+
+## 🎬 Showcase
+
+A quick walkthrough of Chess Cheat in action.
+
+`[<!-- Replace this line with your GitHub video attachment URL -->](https://github.com/Giogfr/chess-cheat/issues/1#issue-6027251674)`
 
 ## ✨ Features
 
