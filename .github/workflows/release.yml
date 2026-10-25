@@ -1,0 +1,44 @@
+name: Package release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out released commit
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run release checks
+        run: |
+          npm run check
+          npm test
+      - name: Build install and source archives
+        run: |
+          mkdir -p dist/install
+          cp manifest.json background.js bridge.js site-policy.js board-adapter.js \
+            visual-settings.js move-overlay.js move-styles.js turn-detection.js \
+            think-timer.js engine-commands.js content.js popup.html popup.js popup.css \
+            LICENSE PRIVACY.md CREDITS.md CHANGELOG.md SECURITY.md dist/install/
+          cp docs/INSTALL.md dist/install/README.md
+          cp -R icons dist/install/icons
+          (cd dist/install && zip -qr ../chess-cheat-install.zip .)
+          unzip -Z1 dist/chess-cheat-install.zip | grep -Fx 'manifest.json'
+          unzip -t dist/chess-cheat-install.zip
+          git archive --format=zip --prefix=chess-cheat/ HEAD -o dist/chess-cheat-github-source.zip
+          sha256sum dist/chess-cheat-install.zip dist/chess-cheat-github-source.zip > dist/SHA256SUMS.txt
+      - name: Attach archives and checksums to the GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${GITHUB_REF_NAME}" dist/chess-cheat-install.zip dist/chess-cheat-github-source.zip dist/SHA256SUMS.txt --clobber
