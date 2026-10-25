@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "Chess Cheat",
+  "version": "1.1.0",
+  "description": "Detect DOM-readable chessboards and mark suggested moves when a compatible page engine is available.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "site-policy.js",
+        "board-adapter.js",
+        "visual-settings.js",
+        "move-overlay.js",
+        "move-styles.js",
+        "turn-detection.js",
+        "think-timer.js",
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_title": "Chess Cheat",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "host_permissions": [
+    "<all_urls>"
+  ]
+}
