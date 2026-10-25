@@ -1,0 +1,52 @@
+name: Bug report
+description: Report a reproducible detection, position, engine, or overlay problem.
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Please do not share cookies, account identifiers, private game links, or other sensitive data. Include only a redacted URL path when reporting board detection."
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version
+      placeholder: Chrome 130 on Windows 11
+    validations:
+      required: true
+  - type: input
+    id: board-site
+    attributes:
+      label: Site and board type
+      description: Use a practice/study/analysis URL without account identifiers or game IDs where possible.
+      placeholder: Site name + practice board / DOM board / Canvas board
+    validations:
+      required: true
+  - type: dropdown
+    id: stage
+    attributes:
+      label: What failed?
+      options:
+        - Board was not detected
+        - Board was detected but position was not read
+        - Position was read but engine startup failed
+        - Engine started but no marker appeared
+        - Marker is offset or flipped
+        - Popup/settings issue
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+      placeholder: 1. Open a practice board...\n2. Enable the extension...\n3. Observe the status...
+    validations:
+      required: true
+  - type: textarea
+    id: status
+    attributes:
+      label: Popup status and logs
+      description: Remove personal data, cookies, tokens, and identifiers.
+      render: text
+    validations:
+      required: false
