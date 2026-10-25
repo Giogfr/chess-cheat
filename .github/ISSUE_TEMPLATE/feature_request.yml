@@ -1,0 +1,26 @@
+name: Feature request
+description: Propose a practice/analysis workflow or board-detection improvement.
+title: "feature: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: Describe the use case and why existing behaviour does not cover it.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behaviour
+      description: Include any relevant board markup or API documentation you can share publicly.
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Intended use
+      options:
+        - label: This request describes a specific board-detection, position-reading, or overlay feature.
+          required: true
