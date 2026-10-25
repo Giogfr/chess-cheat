@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Chess Cheat smoke fixture</title>
+  <style>
+    body { margin: 0; padding: 24px; font: 14px system-ui, sans-serif; background: #e5e7eb; }
+    #fixture-board { display: block; position: relative; width: 800px; height: 800px; max-width: 90vw; max-height: 90vw; background: #b58863; overflow: hidden; }
+    .fixture-square { position: absolute; width: 12.5%; height: 12.5%; }
+    .fixture-square.light { background: #f0d9b5; }
+    .fixture-square.dark { background: #b58863; }
+    .piece { position: absolute; display: grid; place-items: center; width: 12.5%; height: 12.5%; z-index: 2; font: 56px/1 "Segoe UI Symbol", "DejaVu Sans", serif; color: #111827; }
+    .piece[class*=" w"] { color: #f9fafb; text-shadow: 0 1px 2px #111827; }
+    .clock-white { display: none; }
+    #smoke-result { margin-top: 12px; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="clock-white clock-player-turn">White to move</div>
+  <wc-chess-board id="fixture-board"></wc-chess-board>
+  <div id="smoke-result">waiting</div>
+  <script>
+    (() => {
+      window.__CHESS_CHEAT_TEST_MODE__ = true;
+      window.__mockEngineState = { sentFen: '', commands: [], errors: [] };
+      window.addEventListener('error', (event) => window.__mockEngineState.errors.push(event.message || 'window error'));
+      window.addEventListener('unhandledrejection', (event) => window.__mockEngineState.errors.push(String(event.reason || 'unhandled rejection')));
+
+      const board = document.getElementById('fixture-board');
+      const rows = [
+        ['r','n','b','q','k','b','n','r'],
+        ['p','p','p','p','p','p','p','p'],
+        ['.','.','.','.','.','.','.','.'],
+        ['.','.','.','.','.','.','.','.'],
+        ['.','.','.','.','.','.','.','.'],
+        ['.','.','.','.','.','.','.','.'],
+        ['P','P','P','P','P','P','P','P'],
+        ['R','N','B','Q','K','B','N','R']
+      ];
+      for (let row = 0; row < 8; row += 1) {
+        for (let column = 0; column < 8; column += 1) {
+          const square = document.createElement('div');
+          square.className = `fixture-square ${(row + column) % 2 ? 'dark' : 'light'}`;
+          square.style.left = `${column * 12.5}%`;
+          square.style.top = `${row * 12.5}%`;
+          board.appendChild(square);
+          const piece = rows[row][column];
+          if (piece === '.') continue;
+          const element = document.createElement('div');
+          element.className = `piece ${piece === piece.toUpperCase() ? 'w' : 'b'}${piece.toLowerCase()} square-${column + 1}${8 - row}`;
+          element.textContent = ({ K:'♔', Q:'♕', R:'♖', B:'♗', N:'♘', P:'♙', k:'♚', q:'♛', r:'♜', b:'♝', n:'♞', p:'♟' })[piece];
+          element.style.left = `${column * 12.5}%`;
+          element.style.top = `${row * 12.5}%`;
+          board.appendChild(element);
+        }
+      }
+
+      const saved = {};
+      window.__mockSavedSettings = saved;
+      const listeners = [];
+      const chromeMock = {
+        storage: {
+          local: {
+            get(key, callback) { callback({ [key]: saved[key] }); },
+            set(value, callback) { Object.assign(saved, value); if (callback) callback(); }
+          }
+        },
+        runtime: {
+          lastError: null,
+          sendMessage(message, callback) { if (callback) callback({ ok: true }); }
+        }
+      };
+      Object.defineProperty(window, 'chrome', { value: chromeMock, configurable: true });
+
+      const sendEngineLine = (line) => window.postMessage({
+        namespace: 'CHESS_CHEAT', source: 'page-bridge', type: 'ENGINE_OUTPUT', line
+      }, location.origin);
+
+      window.addEventListener('message', (event) => {
+        const message = event.data;
+        if (event.source !== window || event.origin !== location.origin || message?.namespace !== 'CHESS_CHEAT') return;
+        if (message.source === 'content' && message.type === 'READ_POSITION') {
+          window.postMessage({
+            namespace: 'CHESS_CHEAT',
+            source: 'page-bridge',
+            type: 'POSITION_STATE',
+            requestId: message.requestId,
+            fen: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+            turn: 'w'
+          }, location.origin);
+        } else if (message.source === 'content' && message.type === 'CREATE_ENGINE') {
+          window.postMessage({ namespace: 'CHESS_CHEAT', source: 'page-bridge', type: 'ENGINE_STARTED' }, location.origin);
+          sendEngineLine('option name Skill Level type spin default 20 min 0 max 20');
+          sendEngineLine('option name MultiPV type spin default 1 min 1 max 500');
+          sendEngineLine('uciok');
+        } else if (message.source === 'content' && message.type === 'ENGINE_COMMAND') {
+          window.__mockEngineState.commands.push(message.command);
+          if (message.command.startsWith('position fen ')) window.__mockEngineState.sentFen = message.command.slice('position fen '.length);
+          if (message.command === 'isready') setTimeout(() => sendEngineLine('readyok'), 0);
+          if (message.command.startsWith('go depth ')) {
+            setTimeout(() => {
+              sendEngineLine('info depth 12 multipv 1 score cp 33 pv e2e4 e7e5');
+              sendEngineLine('info depth 12 multipv 2 score cp 21 pv d2d4 d7d5');
+              sendEngineLine('info depth 12 multipv 3 score cp 13 pv g1f3 g8f6');
+              sendEngineLine('bestmove e2e4');
+            }, 10);
+          }
+        }
+      });
+
+      window.runOverlaySmoke = () => setTimeout(() => {
+        const overlay = document.querySelector('.cc-analysis-arrow-layer');
+        const noPanel = !document.getElementById('cc-analysis-panel');
+        const arrowCount = overlay?.querySelectorAll('path').length || 0;
+        const timer = document.querySelector('.cc-position-timer');
+        const timerPresent = Boolean(timer && timer.textContent.startsWith('Position time · '));
+        const validFen = /\s[w b]\s/.test(` ${window.__mockEngineState.sentFen} `) && window.__mockEngineState.sentFen.includes(' w ');
+        const autoStarted = window.__mockEngineState.commands.some((command) => command === 'uci' || command === 'isready') || window.__mockEngineState.sentFen.length > 0;
+        const ok = Boolean(noPanel && overlay && arrowCount >= 2 && timerPresent && validFen && autoStarted && window.__mockEngineState.errors.length === 0);
+        document.getElementById('smoke-result').textContent = ok ? 'PASS' : `FAIL panel=${!noPanel} arrows=${arrowCount} timer=${timerPresent} fen=${window.__mockEngineState.sentFen} commands=${window.__mockEngineState.commands.join('|')} errors=${window.__mockEngineState.errors.join('|')}`;
+        document.documentElement.dataset.smoke = ok ? 'pass' : 'fail';
+      }, 1400);
+    })();
+  </script>
+  <script src="../../site-policy.js"></script>
+  <script src="../../board-adapter.js"></script>
+  <script src="../../visual-settings.js"></script>
+  <script src="../../move-overlay.js"></script>
+  <script src="../../move-styles.js"></script>
+  <script src="../../turn-detection.js"></script>
+  <script src="../../think-timer.js"></script>
+  <script src="../../content.js"></script>
+  <script>window.addEventListener('load', () => window.runOverlaySmoke(), { once: true });</script>
+</body>
+</html>
