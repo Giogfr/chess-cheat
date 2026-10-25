@@ -25,11 +25,7 @@ The project is also a practical codebase for studying Chromium extensions, DOM-b
 
 A quick walkthrough of Chess Cheat in action.
 
-`
-
 https://github.com/user-attachments/assets/6109313e-4ea5-4b29-8a1a-c837af2b7607
-
-`
 
 ## ✨ Features
 
